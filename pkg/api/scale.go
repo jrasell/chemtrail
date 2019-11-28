@@ -14,7 +14,7 @@ func (c *Client) Scale() *Scale {
 }
 
 type ScaleResp struct {
-	ScaleID string
+	ID string
 }
 
 func (s *Scale) StatusList() (*map[uuid.UUID]state.ScalingActivity, error) {
