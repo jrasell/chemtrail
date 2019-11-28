@@ -42,7 +42,7 @@ func TestClientProvider_Validate(t *testing.T) {
 		},
 		{
 			inputClientProvider: fakeProvider,
-			expectedOutput:      errors.New("unsupported client provider fake"),
+			expectedOutput:      errors.New("unsupported client provider \"fake\""),
 			name:                "invalid scaling provider",
 		},
 	}
