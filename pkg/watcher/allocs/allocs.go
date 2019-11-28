@@ -38,13 +38,13 @@ func (w *Watcher) Run(updateChan chan interface{}) {
 		}
 
 		if !watcher.IndexHasChange(meta.LastIndex, q.WaitIndex) {
-			w.logger.Debug().Msg("node watcher last index has not changed")
+			w.logger.Debug().Msg("alloc watcher last index has not changed")
 			continue
 		}
 		w.logger.Debug().
 			Uint64("old", q.WaitIndex).
 			Uint64("new", meta.LastIndex).
-			Msg("node alloc watcher last index has changed")
+			Msg("alloc watcher last index has changed")
 
 		// Iterate over all the returned node allocs.
 		for i := range allocs {
@@ -56,14 +56,14 @@ func (w *Watcher) Run(updateChan chan interface{}) {
 			w.logger.Debug().
 				Uint64("old", w.lastChangeIndex).
 				Uint64("new", allocs[i].ModifyIndex).
-				Msg("node modify index has changed is greater than last recorded")
+				Msg("alloc modify index has changed is greater than last recorded")
 
 			alloc, _, err := w.nomad.Allocations().Info(allocs[i].ID, nil)
 			if err != nil {
 				w.logger.Error().
 					Str("alloc-id", allocs[i].ID).
 					Err(err).
-					Msg("failed to call Nomad API for node info")
+					Msg("failed to call Nomad API for alloc info")
 			}
 
 			maxFound = watcher.MaxFound(allocs[i].ModifyIndex, maxFound)
