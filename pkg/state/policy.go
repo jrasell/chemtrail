@@ -46,9 +46,9 @@ type PolicyCheck struct {
 	// not.
 	Enabled bool `json:"Enabled"`
 
-	// ScaleResource identifies the Nomad resource which will be checked within this policy check
+	// Resource identifies the Nomad resource which will be checked within this policy check
 	// evaluation.
-	Resource ScaleResource `json:"ScaleResource"`
+	Resource ScaleResource `json:"Resource"`
 
 	// ComparisonOperator determines how the value if compared to the theshold.
 	ComparisonOperator ComparisonOperator `json:"ComparisonOperator"`
@@ -90,15 +90,15 @@ func (c ClientScalingPolicy) Validate() error {
 	// rather than collecting.
 	for name, check := range c.Checks {
 		if err := check.Resource.Validate(); err != nil {
-			return errors.Wrap(err, "failed to validate check"+name)
+			return errors.Wrap(err, "failed to validate check: "+name)
 		}
 
 		if err := check.ComparisonOperator.Validate(); err != nil {
-			return errors.Wrap(err, "failed to validate check"+name)
+			return errors.Wrap(err, "failed to validate check: "+name)
 		}
 
 		if err := check.Action.Validate(); err != nil {
-			return errors.Wrap(err, "failed to validate check"+name)
+			return errors.Wrap(err, "failed to validate check: "+name)
 		}
 	}
 	return nil
@@ -118,7 +118,7 @@ func (c ClientProvider) Validate() error {
 	case AWSAutoScaling:
 		return nil
 	default:
-		return errors.Errorf("unsupported client provider %s", c.String())
+		return errors.Errorf("unsupported client provider \"%s\"", c.String())
 	}
 }
 
@@ -140,7 +140,7 @@ func (co ComparisonOperator) Validate() error {
 	case ComparisonGreaterThan, ComparisonLessThan:
 		return nil
 	default:
-		return errors.Errorf("ComparisonOperator %s is not a valid option", co.String())
+		return errors.Errorf("ComparisonOperator \"%s\" is not a valid option", co.String())
 	}
 }
 
@@ -162,7 +162,7 @@ func (ca ComparisonAction) Validate() error {
 	case ActionScaleIn, ActionScaleOut:
 		return nil
 	default:
-		return errors.Errorf("Action %s is not a valid option", ca.String())
+		return errors.Errorf("Action \"%s\" is not a valid option", ca.String())
 	}
 }
 
@@ -186,7 +186,7 @@ func (r ScaleResource) Validate() error {
 	case ScaleResourceCPU, ScaleResourceMemory:
 		return nil
 	default:
-		return errors.Errorf("ScaleResource %s is not a valid option", r.String())
+		return errors.Errorf("ScaleResource \"%s\" is not a valid option", r.String())
 	}
 }
 
