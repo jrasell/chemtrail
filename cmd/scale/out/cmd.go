@@ -46,5 +46,5 @@ func runOut(_ *cobra.Command, args []string) {
 		fmt.Println("Error scaling Nomad client class:", err)
 		os.Exit(sysexits.Software)
 	}
-	fmt.Println("ID:", resp.ScaleID)
+	fmt.Println("ID:", resp.ID)
 }

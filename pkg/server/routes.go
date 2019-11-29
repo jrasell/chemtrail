@@ -56,13 +56,13 @@ func (h *HTTPServer) setupScaleRoutes() []router.Route {
 			Name:    routePostScaleInName,
 			Method:  http.MethodPost,
 			Pattern: routeScaleInPattern,
-			Handler: h.routes.scale.PutScaleInClass,
+			Handler: h.routes.scale.PostScaleIn,
 		},
 		router.Route{
 			Name:    routeScaleOutName,
 			Method:  http.MethodPost,
 			Pattern: routeScaleOutPattern,
-			Handler: h.routes.scale.PutScaleOutClass,
+			Handler: h.routes.scale.PostScaleOut,
 		},
 		router.Route{
 			Name:    routeGetScaleStatusName,

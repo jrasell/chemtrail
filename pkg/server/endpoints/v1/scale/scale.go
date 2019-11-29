@@ -19,7 +19,7 @@ type Server struct {
 	ScaleBackend  state.ScaleBackend
 }
 
-func (s *Server) PutScaleInClass(w http.ResponseWriter, r *http.Request) {
+func (s *Server) PostScaleIn(w http.ResponseWriter, r *http.Request) {
 
 	msg, err := s.prepareScaleMessage(mux.Vars(r))
 	if err != nil {
@@ -40,10 +40,10 @@ func (s *Server) PutScaleInClass(w http.ResponseWriter, r *http.Request) {
 	}
 	go s.Scale.InvokeScaling(msg)
 
-	helper.WriteJSONResponse(w, []byte(fmt.Sprintf("{\"ScaleID\":\"%s\"}", msg.ID)), http.StatusOK, s.Logger)
+	helper.WriteJSONResponse(w, []byte(fmt.Sprintf("{\"ID\":\"%s\"}", msg.ID)), http.StatusOK, s.Logger)
 }
 
-func (s *Server) PutScaleOutClass(w http.ResponseWriter, r *http.Request) {
+func (s *Server) PostScaleOut(w http.ResponseWriter, r *http.Request) {
 	msg, err := s.prepareScaleMessage(mux.Vars(r))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -63,7 +63,7 @@ func (s *Server) PutScaleOutClass(w http.ResponseWriter, r *http.Request) {
 	}
 	go s.Scale.InvokeScaling(msg)
 
-	helper.WriteJSONResponse(w, []byte(fmt.Sprintf("{\"ScaleID\":\"%s\"}", msg.ID)), http.StatusOK, s.Logger)
+	helper.WriteJSONResponse(w, []byte(fmt.Sprintf("{\"ID\":\"%s\"}", msg.ID)), http.StatusOK, s.Logger)
 }
 
 func (s *Server) prepareScaleMessage(vars map[string]string) (*state.ScalingRequest, error) {
