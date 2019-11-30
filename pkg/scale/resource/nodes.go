@@ -92,11 +92,8 @@ func (n *updateHandler) handleNodeAvailableMessage(node *api.Node) {
 		class:       node.NodeClass,
 		eligibility: node.SchedulingEligibility,
 		resourceStats: &resourceStats{
-			allocatedResources: &resources{},
-			allocatableResources: &resources{
-				cpu:    float64(*node.Resources.CPU - *node.Reserved.CPU),
-				memory: float64(*node.Resources.MemoryMB - *node.Reserved.MemoryMB),
-			},
+			allocatedResources:   &resources{},
+			allocatableResources: n.getNodeAllocatableResources(node),
 		},
 	}
 	n.nodePool[node.NodeClass].nodes[node.ID] = &info
@@ -109,25 +106,32 @@ func (n *updateHandler) handleNodeAvailableMessage(node *api.Node) {
 		Msg("added node to Chemtrail internal state")
 
 	// Update the node class pool high level resource tracking stats.
-	n.nodePool[node.NodeClass].resourceStats.allocatableResources.cpu += float64(*node.Resources.CPU)
-	n.nodePool[node.NodeClass].resourceStats.allocatableResources.memory += float64(*node.Resources.MemoryMB)
+	n.nodePool[node.NodeClass].resourceStats.allocatableResources.cpu += info.resourceStats.allocatableResources.cpu
+	n.nodePool[node.NodeClass].resourceStats.allocatableResources.memory += info.resourceStats.allocatableResources.memory
 }
 
 func (n *updateHandler) handleNodeUnavailableMessage(node *api.Node) {
-	if _, ok := n.nodePool[node.NodeClass].nodes[node.ID]; ok {
 
-		n.nodeClassLock.Lock()
-		delete(n.nodeClass, node.ID)
-		n.nodeClassLock.Unlock()
+	// If the node class is not being tracked, we do not need to do anything as this handled node
+	// needs to be removed from tracking anyway.
+	if _, ok := n.nodePool[node.NodeClass]; !ok {
+		return
+	}
+
+	if info, ok := n.nodePool[node.NodeClass].nodes[node.ID]; ok {
 
 		n.nodePoolLock.Lock()
 
 		delete(n.nodePool[node.NodeClass].nodes, node.ID)
 
-		n.nodePool[node.NodeClass].resourceStats.allocatableResources.cpu -= float64(*node.Resources.CPU)
-		n.nodePool[node.NodeClass].resourceStats.allocatableResources.memory -= float64(*node.Resources.MemoryMB)
+		n.nodePool[node.NodeClass].resourceStats.allocatableResources.cpu -= info.resourceStats.allocatableResources.cpu
+		n.nodePool[node.NodeClass].resourceStats.allocatableResources.memory -= info.resourceStats.allocatableResources.memory
 
 		n.nodePoolLock.Unlock()
+
+		n.nodeClassLock.Lock()
+		delete(n.nodeClass, node.ID)
+		n.nodeClassLock.Unlock()
 	}
 }
 
@@ -139,5 +143,14 @@ func (n *updateHandler) checkNodeClass(node *api.Node) {
 			Str("node-id", node.ID).
 			Msg("node has empty class parameter, using Chemtrail default")
 		node.NodeClass = "chemtrail-default"
+	}
+}
+
+// getNodeAllocatableResources takes the desired node and calculates the amount of allocatable
+// resources.
+func (n *updateHandler) getNodeAllocatableResources(node *api.Node) *resources {
+	return &resources{
+		cpu:    float64(node.NodeResources.Cpu.CpuShares) - float64(node.ReservedResources.Cpu.CpuShares),
+		memory: float64(node.NodeResources.Memory.MemoryMB) - float64(node.ReservedResources.Memory.MemoryMB),
 	}
 }
