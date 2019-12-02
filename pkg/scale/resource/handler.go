@@ -63,7 +63,7 @@ type updateHandler struct {
 	nodePool     map[string]*classInfo
 	nodePoolLock sync.RWMutex
 
-	// nodeClass keeps a tracking of the n	odes and the class they are configured with. This is
+	// nodeClass keeps a tracking of the nodes and the class they are configured with. This is
 	// useful as allocations do not contain this data but do contain the nodeID. Therefore we can
 	// use this map for a quick lookup to understand which class pool the allocation resources are
 	// associated with.
