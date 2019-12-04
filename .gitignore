@@ -16,3 +16,6 @@ dist/
 
 # The Makefile build binary
 chemtrail
+
+# macOS attributes file
+.DS_Store
