@@ -85,8 +85,8 @@ func (s *ScaleBackend) WriteRequest(req *state.ScalingRequest) error {
 	entry := state.ScalingActivity{
 		Events: []state.Event{{
 			Timestamp: ts,
-			Message:   "scaling activity has started",
-			Source:    "chemtrail",
+			Message:   state.ScaleStartMessage,
+			Source:    state.ScaleChemtrailSource,
 		}},
 		Direction:   req.Direction,
 		LastUpdate:  ts,

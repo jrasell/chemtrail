@@ -157,3 +157,12 @@ func (em EventMessage) MarshalZerologObject(e *zerolog.Event) {
 		e.Str("message", em.Message)
 	}
 }
+
+const (
+	// ScaleChemtrailSource is the source used when building the start event for a scaling
+	// activity.
+	ScaleChemtrailSource = "chemtrail"
+
+	// ScaleStartMessage is the message used as the first event in a scaling activity.
+	ScaleStartMessage = "scaling activity has started"
+)

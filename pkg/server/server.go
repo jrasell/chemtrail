@@ -11,13 +11,16 @@ import (
 	"syscall"
 
 	"github.com/armon/go-metrics"
+	consulAPI "github.com/hashicorp/consul/api"
 	"github.com/jrasell/chemtrail/pkg/client"
 	"github.com/jrasell/chemtrail/pkg/scale"
 	"github.com/jrasell/chemtrail/pkg/scale/auto"
 	"github.com/jrasell/chemtrail/pkg/scale/resource"
 	"github.com/jrasell/chemtrail/pkg/server/router"
 	"github.com/jrasell/chemtrail/pkg/state"
+	policyConsul "github.com/jrasell/chemtrail/pkg/state/policy/consul"
 	policyMemory "github.com/jrasell/chemtrail/pkg/state/policy/memory"
+	scaleConsul "github.com/jrasell/chemtrail/pkg/state/scale/consul"
 	scaleMemory "github.com/jrasell/chemtrail/pkg/state/scale/memory"
 	"github.com/jrasell/chemtrail/pkg/watcher"
 	"github.com/jrasell/chemtrail/pkg/watcher/allocs"
@@ -30,6 +33,9 @@ type HTTPServer struct {
 	addr   string
 	cfg    *Config
 	logger zerolog.Logger
+
+	// consul is our stored, reusable Consul client.
+	consul *consulAPI.Client
 
 	// nomad is our stored Nomad client wrapper which is reused in all areas which require Nomad
 	// API connectivity.
@@ -59,16 +65,25 @@ type HTTPServer struct {
 
 	telemetry *metrics.InmemSink
 
+	// gcIsRunning is used to track whether this Chemtrail server is currently running the garbage
+	// collection loop.
+	gcIsRunning bool
+
+	// stopChan is used to synchronise stopping the HTTP server services and any handlers which it
+	// maintains operationally.
+	stopChan chan struct{}
+
 	http.Server
 	routes *routes
 }
 
 func New(l zerolog.Logger, cfg *Config) *HTTPServer {
 	return &HTTPServer{
-		addr:   fmt.Sprintf("%s:%d", cfg.Server.Bind, cfg.Server.Port),
-		cfg:    cfg,
-		logger: l,
-		routes: &routes{},
+		addr:     fmt.Sprintf("%s:%d", cfg.Server.Bind, cfg.Server.Port),
+		cfg:      cfg,
+		logger:   l,
+		routes:   &routes{},
+		stopChan: make(chan struct{}),
 	}
 }
 
@@ -92,6 +107,9 @@ func (h *HTTPServer) Start() error {
 		go h.autoscaler.Run()
 	}
 
+	// Trigger the garbage collection periodic loop.
+	go h.runGarbageCollectionLoop()
+
 	h.handleSignals()
 	return nil
 }
@@ -105,8 +123,14 @@ func (h *HTTPServer) setup() error {
 		Str("node-id", h.nomad.NodeID).
 		Msg("identified Chemtrail allocation nodeID")
 
-	h.policyState = policyMemory.NewPolicyBackend()
-	h.scaleState = scaleMemory.NewScaleStateBackend()
+	// Setup the reusable Consul client.
+	if err := h.setupConsulClient(); err != nil {
+		return err
+	}
+
+	// Setup the state backend.
+	h.setupStateBackend()
+
 	h.nodeResourceHandler = resource.NewHandler(h.logger, h.nomad)
 
 	h.scaler = scale.NewScaleBackend(&scale.BackendConfig{
@@ -194,6 +218,33 @@ func (h *HTTPServer) setupNomadClient() error {
 	return nil
 }
 
+// setupConsulClient is used to build and store our reusable Consul API client.
+func (h *HTTPServer) setupConsulClient() error {
+	h.logger.Debug().Msg("setting up Consul client")
+
+	cc, err := client.NewConsulClient()
+	if err != nil {
+		return err
+	}
+	h.consul = cc
+
+	return nil
+}
+
+// setupStateBackend sets up the storage backend for Chemtrail state, depending on the operators
+// desire.
+func (h *HTTPServer) setupStateBackend() {
+	if h.cfg.Storage.ConsulEnabled {
+		h.logger.Debug().Msg("setting up Consul storage backend")
+		h.policyState = policyConsul.NewPolicyBackend(h.cfg.Storage.ConsulPath, h.consul)
+		h.scaleState = scaleConsul.NewScaleBackend(h.logger, h.cfg.Storage.ConsulPath, h.consul)
+	} else {
+		h.logger.Debug().Msg("setting up in-memory storage backend")
+		h.policyState = policyMemory.NewPolicyBackend()
+		h.scaleState = scaleMemory.NewScaleStateBackend()
+	}
+}
+
 func (h *HTTPServer) setupListener() net.Listener {
 	var (
 		err error
@@ -223,6 +274,10 @@ func (h *HTTPServer) Stop() error {
 	if h.autoscaler != nil && h.autoscaler.IsRunning() {
 		h.autoscaler.Stop()
 	}
+
+	// Send a signal to the HTTPServer stopChan instructing sub-process to stop.
+	close(h.stopChan)
+
 	return h.Shutdown(context.Background())
 }
 
