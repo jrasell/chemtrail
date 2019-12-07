@@ -10,6 +10,7 @@ type Config struct {
 	Autoscale *serverCfg.AutoscalerConfig
 	Provider  *serverCfg.ProviderConfig
 	Server    *serverCfg.Config
+	Storage   *serverCfg.StorageConfig
 	TLS       *serverCfg.TLSConfig
 	Telemetry *serverCfg.TelemetryConfig
 }

@@ -26,6 +26,7 @@ func RegisterCommand(rootCmd *cobra.Command) error {
 	serverCfg.RegisterTelemetryConfig(cmd)
 	serverCfg.RegisterProviderConfig(cmd)
 	serverCfg.RegisterAutoscalerConfig(cmd)
+	serverCfg.RegisterStorageConfig(cmd)
 	logCfg.RegisterConfig(cmd)
 	rootCmd.AddCommand(cmd)
 
@@ -35,6 +36,7 @@ func RegisterCommand(rootCmd *cobra.Command) error {
 func runServer(_ *cobra.Command, _ []string) {
 	autoscaleConfig := serverCfg.GetAutoscalerConfig()
 	providerConfig := serverCfg.GetProviderConfig()
+	storageConfig := serverCfg.GetStorageConfig()
 	serverConfig := serverCfg.GetConfig()
 	tlsConfig := serverCfg.GetTLSConfig()
 	telemetryConfig := serverCfg.GetTelemetryConfig()
@@ -50,6 +52,7 @@ func runServer(_ *cobra.Command, _ []string) {
 		Autoscale: autoscaleConfig,
 		Provider:  providerConfig,
 		Server:    &serverConfig,
+		Storage:   storageConfig,
 		TLS:       &tlsConfig,
 		Telemetry: &telemetryConfig,
 	}

@@ -35,13 +35,15 @@ github.com/gorhill/cronexpr
 github.com/gorilla/mux
 # github.com/gorilla/websocket v1.4.1
 github.com/gorilla/websocket
+# github.com/hashicorp/consul/api v1.3.0
+github.com/hashicorp/consul/api
 # github.com/hashicorp/go-cleanhttp v0.5.1
 github.com/hashicorp/go-cleanhttp
-# github.com/hashicorp/go-immutable-radix v1.0.0
+# github.com/hashicorp/go-immutable-radix v1.1.0
 github.com/hashicorp/go-immutable-radix
 # github.com/hashicorp/go-rootcerts v1.0.1
 github.com/hashicorp/go-rootcerts
-# github.com/hashicorp/golang-lru v0.5.0
+# github.com/hashicorp/golang-lru v0.5.3
 github.com/hashicorp/golang-lru/simplelru
 # github.com/hashicorp/hcl v1.0.0
 github.com/hashicorp/hcl
@@ -57,6 +59,8 @@ github.com/hashicorp/hcl/json/token
 # github.com/hashicorp/nomad/api v0.0.0-20191126155349-830c0b16d2ed
 github.com/hashicorp/nomad/api
 github.com/hashicorp/nomad/api/contexts
+# github.com/hashicorp/serf v0.8.5
+github.com/hashicorp/serf/coordinate
 # github.com/inconshreveable/mousetrap v1.0.0
 github.com/inconshreveable/mousetrap
 # github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af

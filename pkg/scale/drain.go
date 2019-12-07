@@ -5,11 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jrasell/chemtrail/pkg/helper"
-	"github.com/jrasell/chemtrail/pkg/state"
-
 	"github.com/gofrs/uuid"
 	"github.com/hashicorp/nomad/api"
+	"github.com/jrasell/chemtrail/pkg/helper"
+	"github.com/jrasell/chemtrail/pkg/state"
 )
 
 const (
