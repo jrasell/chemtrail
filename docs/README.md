@@ -11,3 +11,4 @@ Chemtrail is a client node scaler for [HashiCorp Nomad](https://www.nomadproject
 1. [API](./api) documentation.
 1. [CLI](./commands) documentation.
 1. [Chemtrail server](./configuration) configuration documentation.
+1. [Guides](./guides) documentation.
