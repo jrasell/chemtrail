@@ -7,8 +7,7 @@ tools: ## Install the tools used to test and build
 
 build: ## Build Chemtrail for development purposes
 	@echo "==> Running $@..."
-# 	govvv build -o chemtrail ./cmd -version $(shell git describe --tags --abbrev=0 $(git rev-list --tags --max-count=1) |cut -c 2- |awk '{print $1}')+dev -pkg github.com/jrasell/chemtrail/pkg/build
-	go build -o chemtrail cmd/main.go
+	govvv build -o chemtrail ./cmd -version $(shell git describe --tags --abbrev=0 $(git rev-list --tags --max-count=1) |cut -c 2- |awk '{print $1}')+dev -pkg github.com/jrasell/chemtrail/pkg/build
 
 test: ## Run the Chemtrail test suite with coverage
 	@echo "==> Running $@..."
