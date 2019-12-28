@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/jrasell/chemtrail/cmd/system/health"
+	"github.com/jrasell/chemtrail/cmd/system/metrics"
 	"github.com/sean-/sysexits"
 	"github.com/spf13/cobra"
 )
@@ -31,5 +32,8 @@ func runSystem(cmd *cobra.Command, _ []string) {
 }
 
 func registerCommands(cmd *cobra.Command) error {
+	if err := metrics.RegisterCommand(cmd); err != nil {
+		return nil
+	}
 	return health.RegisterCommand(cmd)
 }
