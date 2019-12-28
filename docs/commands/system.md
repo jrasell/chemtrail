@@ -9,6 +9,11 @@ Detail the health of the server:
 $ chemtrail system health
 ```
 
+Output the latest metric data points for the running server:
+```bash
+$ chemtrail system metrics
+```
+
 ## Usage
 ```bash
 Usage:
@@ -17,4 +22,5 @@ Usage:
 
 Available Commands:
   health      Retrieve health information of a Chemtrail server
+  metrics     Retrieve metrics from a Chemtrail server
 ```
