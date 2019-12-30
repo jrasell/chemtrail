@@ -68,8 +68,8 @@ func NewScaleBackend(cfg *BackendConfig) Scale {
 	// If the AWS provider is enabled, configure the scaling backend.
 	if cfg.Provider.AWSASG {
 		b.clientProvider[state.AWSAutoScaling] = aws_asg.NewAWSASGProvider(b.logger, b.eventChan)
+		b.logger.Debug().Msg("successfully setup AWS AutoScaling provider")
 	}
-	b.logger.Debug().Msg("successfully setup AWS AutoScaling provider")
 
 	// Start the event handler.
 	go b.eventUpdateHandler()
