@@ -1,6 +1,6 @@
 # Chemtrail
 
-[![Build Status](https://travis-ci.org/jrasell/chemtrail.svg?branch=master)](https://travis-ci.org/jrasell/chemtrail) [![Go Report Card](https://goreportcard.com/badge/github.com/jrasell/chemtrail)](https://goreportcard.com/report/github.com/jrasell/chemtrail) [![GoDoc](https://godoc.org/github.com/jrasell/chemtrail?status.svg)](https://godoc.org/github.com/jrasell/chemtrail)
+[![Build Status](https://travis-ci.org/jrasell/chemtrail.svg?branch=master)](https://travis-ci.org/jrasell/chemtrail) [![Go Report Card](https://goreportcard.com/badge/github.com/jrasell/chemtrail)](https://goreportcard.com/report/github.com/jrasell/chemtrail) [![GoDoc](https://godoc.org/github.com/jrasell/chemtrail?status.svg)](https://godoc.org/github.com/jrasell/chemtrail/pkg/api)
 
 Chemtrail is a client scaler for [HashiCorp Nomad](https://www.nomadproject.io/) allowing for dynamic and safe scaling of the client workerpool based on demand.
 
