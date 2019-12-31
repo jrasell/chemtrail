@@ -6,6 +6,7 @@ IMPROVEMENTS:
 BUG FIXES:
  * Do not log Chemtrail allocation nodeID if Chemtrail is not found to be running on Nomad [[GH-23]](https://github.com/jrasell/chemtrail/pull/23)
  * Do not log AWS ASG provider setup when it is not enabled [[GH-20]](https://github.com/jrasell/chemtrail/pull/20)
+ * Correctly format ProviderConfig CLI output when reading a scaling policy [[GH-22]](https://github.com/jrasell/chemtrail/pull/22)
 
 ## 0.0.1 (17 December, 2019)
 
