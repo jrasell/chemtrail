@@ -8,6 +8,7 @@ import (
 	"github.com/jrasell/chemtrail/pkg/helper"
 	"github.com/jrasell/chemtrail/pkg/scale/provider"
 	aws_asg "github.com/jrasell/chemtrail/pkg/scale/provider/aws-asg"
+	noop "github.com/jrasell/chemtrail/pkg/scale/provider/no-op"
 	"github.com/jrasell/chemtrail/pkg/scale/resource"
 	"github.com/jrasell/chemtrail/pkg/state"
 	"github.com/pkg/errors"
@@ -69,6 +70,11 @@ func NewScaleBackend(cfg *BackendConfig) Scale {
 	if cfg.Provider.AWSASG {
 		b.clientProvider[state.AWSAutoScaling] = aws_asg.NewAWSASGProvider(b.logger, b.eventChan)
 		b.logger.Debug().Msg("successfully setup AWS AutoScaling provider")
+	}
+
+	if cfg.Provider.NoOp {
+		b.clientProvider[state.NoOpClientProvider] = noop.NewNoOpProvider(b.logger, b.eventChan)
+		b.logger.Debug().Msg("successfully setup notify log provider")
 	}
 
 	// Start the event handler.
@@ -159,8 +165,11 @@ func (b *Backend) invokeScaling(req *state.ScalingRequest) error {
 		}
 		req.TargetNodeID = node.ID
 
-		if err := b.removeNodeFromCluster(req.TargetNodeID, req.ID); err != nil {
-			return err
+		// If we are using the NoOp provider, we should not remove the node from the cluster.
+		if req.Policy.Provider != state.NoOpClientProvider {
+			if err := b.removeNodeFromCluster(req.TargetNodeID, req.ID); err != nil {
+				return err
+			}
 		}
 
 		target, err := b.identifyProviderTarget(req)
@@ -178,6 +187,8 @@ func (b *Backend) identifyProviderTarget(req *state.ScalingRequest) (string, err
 	switch req.Policy.Provider {
 	case state.AWSAutoScaling:
 		return b.nodeIDToAWSInstanceID(req.TargetNodeID, req.ID)
+	case state.NoOpClientProvider:
+		return req.TargetNodeID, nil
 	default:
 		return "", errors.Errorf("unsupported provider: %s", req.Policy.Provider.String())
 	}

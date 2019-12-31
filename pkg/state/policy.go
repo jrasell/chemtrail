@@ -1,6 +1,9 @@
 package state
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
+)
 
 // PolicyBackend is the interface which must be satisfied in order to store Chemtrail scaling
 // policies.
@@ -38,28 +41,29 @@ type ClientScalingPolicy struct {
 	Checks         map[string]*PolicyCheck `json:"Checks"`
 }
 
-// PolicyCheck is an individual check to be performed as part of an autoscaling evaluation of the
-// Nomad client class.
-type PolicyCheck struct {
+// MarshalZerologObject satisfies the LogObjectMarshaler interface of Zerolog allowing us to log
+// the ClientScalingPolicy as an object.
+func (c ClientScalingPolicy) MarshalZerologObject(e *zerolog.Event) {
 
-	// Enabled is a boolean flag to identify whether this specific check should be actively run or
-	// not.
-	Enabled bool `json:"Enabled"`
+	// Add the top level scaling configuration parameters to the log context.
+	e.
+		Bool("enabled", c.Enabled).
+		Str("class", c.Class).
+		Int("min-count", c.MinCount).
+		Int("max-count", c.MaxCount).
+		Int("scale-in-count", c.ScaleInCount).
+		Int("scale-out-count", c.ScaleOutCount).
+		Str("provider", c.Provider.String())
 
-	// Resource identifies the Nomad resource which will be checked within this policy check
-	// evaluation.
-	Resource ScaleResource `json:"Resource"`
+	// Iterate the provider configuration and add these to the log context.
+	for k, v := range c.ProviderConfig {
+		e.Str(k, v)
+	}
 
-	// ComparisonOperator determines how the value if compared to the theshold.
-	ComparisonOperator ComparisonOperator `json:"ComparisonOperator"`
-
-	// ComparisonPercentage is the float64 value that will be compared to the result of the metric
-	// query.
-	ComparisonPercentage float64 `json:"ComparisonPercentage"`
-
-	// Action is the scaling action that should be taken if the queried metric fails the comparison
-	// check.
-	Action ComparisonAction `json:"Action"`
+	// Iterate the checks and add these to the log context.
+	for k, v := range c.Checks {
+		e.Object(k, v)
+	}
 }
 
 // Validate can be used to validate the contents of a scaling policy. This ensures it contains the
@@ -104,6 +108,41 @@ func (c ClientScalingPolicy) Validate() error {
 	return nil
 }
 
+// PolicyCheck is an individual check to be performed as part of an autoscaling evaluation of the
+// Nomad client class.
+type PolicyCheck struct {
+
+	// Enabled is a boolean flag to identify whether this specific check should be actively run or
+	// not.
+	Enabled bool `json:"Enabled"`
+
+	// Resource identifies the Nomad resource which will be checked within this policy check
+	// evaluation.
+	Resource ScaleResource `json:"Resource"`
+
+	// ComparisonOperator determines how the value if compared to the threshold.
+	ComparisonOperator ComparisonOperator `json:"ComparisonOperator"`
+
+	// ComparisonPercentage is the float64 value that will be compared to the result of the metric
+	// query.
+	ComparisonPercentage float64 `json:"ComparisonPercentage"`
+
+	// Action is the scaling action that should be taken if the queried metric fails the comparison
+	// check.
+	Action ComparisonAction `json:"Action"`
+}
+
+// MarshalZerologObject satisfies the LogObjectMarshaler interface of Zerolog allowing us to log
+// the PolicyCheck as an object.
+func (pc PolicyCheck) MarshalZerologObject(e *zerolog.Event) {
+	e.
+		Bool("enabled", pc.Enabled).
+		Str("resource", pc.Resource.String()).
+		Str("comparison-operator", pc.ComparisonOperator.String()).
+		Float64("comparison-percentage", pc.ComparisonPercentage).
+		Str("comparison-action", pc.Action.String())
+}
+
 // ClientProvider is an identifier to the backend which provides the Nomad client workers. This is
 // used to ensure the correct APIs are called when wanting to perform scaling activities.
 type ClientProvider string
@@ -115,7 +154,7 @@ func (c ClientProvider) String() string { return string(c) }
 // current Chemtrail version.
 func (c ClientProvider) Validate() error {
 	switch c {
-	case AWSAutoScaling:
+	case AWSAutoScaling, NoOpClientProvider:
 		return nil
 	default:
 		return errors.Errorf("unsupported client provider \"%s\"", c.String())
@@ -125,6 +164,10 @@ func (c ClientProvider) Validate() error {
 const (
 	// AWSAutoScaling uses AWS AutoScaling groups to provide the client workers.
 	AWSAutoScaling ClientProvider = "aws-autoscaling"
+
+	// NoOpClientProvider is the no-operation provider which will only log intended actions at INFO
+	// level and will not alter the state of the Nomad cluster.
+	NoOpClientProvider ClientProvider = "no-op"
 )
 
 // ComparisonOperator is the operator used when evaluating a metric value against a threshold.

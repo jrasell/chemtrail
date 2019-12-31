@@ -14,6 +14,7 @@ The Chemtrail server can be configured by supplying either CLI flags or using en
 * `--log-level` (string: "info") - Change the level used for logging.
 * `--log-use-color` (bool: false) - Use ANSI colors in logging output.
 * `--provider-aws-asg-enabled` (bool: false) - Enable the AWS AutoScaling Group client provider.
+* `--provider-noop-enabled` (bool: true) - Enable the NoOp client provider.
 * `--telemetry-statsd-address` (string: "") - Specifies the address of a statsd server to forward metrics to.
 * `--telemetry-statsite-address` (string: "") - Specifies the address of a statsite server to forward metrics data to.
 * `--tls-cert-key-path` (string: "") - Path to the TLS certificate key for the Chemtrail server.
@@ -60,6 +61,10 @@ The Consul client environment variables documentation can be found on the [Consu
 ## Provider Configuration
 
 In order to make scaling requests to backend providers, configuration is required providing authentication amongst others. Below are specific details of the minimum requirement for each provider, and links if available to more in-depth documentation.
+
+### NoOp
+
+The NoOp provider is ideal when first introducing Chemtrail to your environment, or when making configuration changes. The NoOp provider will not enact scaling changes, but will log at INFO level intended behaviour and predicted actions.
 
 ### Amazon Web Services
 
