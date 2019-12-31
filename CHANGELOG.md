@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
  * Add systems metrics API function and CLI [[GH-16]](https://github.com/jrasell/chemtrail/pull/16)
+ * Add NoOp client provider to allow scaling evaluations where results are logged and cluster state is not altered [[GH-18]](https://github.com/jrasell/chemtrail/pull/18)
 
 BUG FIXES:
  * Do not log Chemtrail allocation nodeID if Chemtrail is not found to be running on Nomad [[GH-23]](https://github.com/jrasell/chemtrail/pull/23)
