@@ -119,9 +119,6 @@ func (h *HTTPServer) setup() error {
 	if err := h.setupNomadClient(); err != nil {
 		return err
 	}
-	h.logger.Debug().
-		Str("node-id", h.nomad.NodeID).
-		Msg("identified Chemtrail allocation nodeID")
 
 	// Setup the reusable Consul client.
 	if err := h.setupConsulClient(); err != nil {
@@ -214,6 +211,12 @@ func (h *HTTPServer) setupNomadClient() error {
 		return err
 	}
 	h.nomad = nc
+
+	if h.nomad.NodeID != "" {
+		h.logger.Debug().
+			Str("node-id", h.nomad.NodeID).
+			Msg("identified Chemtrail allocation nodeID")
+	}
 
 	return nil
 }
