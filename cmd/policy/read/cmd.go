@@ -3,6 +3,7 @@ package read
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/jrasell/chemtrail/cmd/helper"
 	"github.com/jrasell/chemtrail/pkg/api"
@@ -61,7 +62,7 @@ func runRead(_ *cobra.Command, args []string) {
 		fmt.Sprintf("ScaleInCount|%v", policy.ScaleInCount),
 		fmt.Sprintf("ScaleOutCount|%v", policy.ScaleOutCount),
 		fmt.Sprintf("Provider|%v", policy.Provider),
-		fmt.Sprintf("ProviderConfig|%v", policy.ProviderConfig),
+		fmt.Sprintf("ProviderConfig|%s", strings.Join(helper.MapStringsToSliceString(policy.ProviderConfig, ":"), ",")),
 	}
 
 	var checks []string

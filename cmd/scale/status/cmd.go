@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jrasell/chemtrail/cmd/helper"
 	"github.com/jrasell/chemtrail/pkg/api"
 	clientCfg "github.com/jrasell/chemtrail/pkg/config/client"
 	"github.com/ryanuber/columnize"
@@ -91,14 +92,8 @@ func runStatusInfo(c *api.Client, id string) error {
 		fmt.Sprintf("LastUpdate|%v", time.Unix(0, resp.LastUpdate).UTC()),
 		fmt.Sprintf("Direction|%s", resp.Direction),
 		fmt.Sprintf("Provider|%s", resp.Provider.String()),
+		fmt.Sprintf("ProviderConfig|%s", strings.Join(helper.MapStringsToSliceString(resp.ProviderCfg, ":"), ",")),
 	}
-
-	pCfg := []string{}
-
-	for k, v := range resp.ProviderCfg {
-		pCfg = append(pCfg, k+":"+v)
-	}
-	header = append(header, fmt.Sprintf("ProviderConfig|%s", strings.Join(pCfg, ",")))
 
 	events := []string{eventsOutputHeader}
 	for _, v := range resp.Events {
