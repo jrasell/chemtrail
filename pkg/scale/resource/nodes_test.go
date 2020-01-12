@@ -419,6 +419,20 @@ func Test_updateHandler_getNodeAllocatableResources(t *testing.T) {
 			expectedOutput: &resources{cpu: 5182, memory: 975},
 			name:           "no reserved CPU but reserved memory resources",
 		},
+		{
+			inputNode: &api.Node{
+				Resources: &api.Resources{
+					CPU:      intToPointer(5182),
+					MemoryMB: intToPointer(985),
+				},
+				Reserved: &api.Resources{
+					CPU:      intToPointer(0),
+					MemoryMB: intToPointer(0),
+				},
+			},
+			expectedOutput: &resources{cpu: 5182, memory: 985},
+			name:           "gh-26 older version of Nomad",
+		},
 	}
 	uh := &updateHandler{}
 

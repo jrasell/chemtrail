@@ -147,10 +147,19 @@ func (n *updateHandler) checkNodeClass(node *api.Node) {
 }
 
 // getNodeAllocatableResources takes the desired node and calculates the amount of allocatable
-// resources.
+// resources. Older versions of Nomad do not include the NodeResources and ReservedResources fields
+// so this must be checked and the older fields used if possible. GH-26 contains additional
+// details.
 func (n *updateHandler) getNodeAllocatableResources(node *api.Node) *resources {
-	return &resources{
-		cpu:    float64(node.NodeResources.Cpu.CpuShares) - float64(node.ReservedResources.Cpu.CpuShares),
-		memory: float64(node.NodeResources.Memory.MemoryMB) - float64(node.ReservedResources.Memory.MemoryMB),
+	r := resources{}
+
+	if node.NodeResources != nil && node.ReservedResources != nil {
+		r.cpu = float64(node.NodeResources.Cpu.CpuShares) - float64(node.ReservedResources.Cpu.CpuShares)
+		r.memory = float64(node.NodeResources.Memory.MemoryMB) - float64(node.ReservedResources.Memory.MemoryMB)
 	}
+	if node.Resources != nil && node.Reserved != nil {
+		r.cpu = float64(*node.Resources.CPU) - float64(*node.Reserved.CPU)
+		r.memory = float64(*node.Resources.MemoryMB) - float64(*node.Reserved.MemoryMB)
+	}
+	return &r
 }
