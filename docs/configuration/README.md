@@ -66,10 +66,33 @@ In order to make scaling requests to backend providers, configuration is require
 
 The NoOp provider is ideal when first introducing Chemtrail to your environment, or when making configuration changes. The NoOp provider will not enact scaling changes, but will log at INFO level intended behaviour and predicted actions.
 
-### Amazon Web Services
+### Amazon Web Services Auto Scaling Groups
 
-The AWS provider client can be configured via environment variables, details of which can be found on the [AWS site](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html). For ease the most commonly used and required can be found below:
+Chemtrail is using the official AWS GO SDK so you can authenticate to AWS with static credentials, instance role or environment variables, details of which can be found on the [AWS site](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html). 
+
+For ease the most commonly used and required environment variables can be found below:
 
 * `AWS_ACCESS_KEY_ID` - Specifies an AWS access key associated with an IAM user or role.
-* `AWS_SECRET_ACCESS_KEY` Specifies the secret key associated with the access key. This is essentially the "password" for the access key.
+* `AWS_SECRET_ACCESS_KEY` - Specifies the secret key associated with the access key. This is essentially the "password" for the access key.
 * `AWS_DEFAULT_REGION` - Specifies the AWS Region to send the request to.
+
+The required IAM permissions are :
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Chemtrail",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:TerminateInstances",
+                "autoscaling:UpdateAutoScalingGroup",
+                "autoscaling:DetachInstances",
+                "autoscaling:DescribeAutoScalingGroups"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
