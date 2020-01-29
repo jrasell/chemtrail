@@ -15,6 +15,8 @@ The Chemtrail server can be configured by supplying either CLI flags or using en
 * `--log-use-color` (bool: false) - Use ANSI colors in logging output.
 * `--provider-aws-asg-enabled` (bool: false) - Enable the AWS AutoScaling Group client provider.
 * `--provider-noop-enabled` (bool: true) - Enable the NoOp client provider.
+* `--storage-consul-enabled` (bool: false) - Use Consul as the storage backend for state.
+* `--storage-consul-path` (string: "chemtrail/") - The Consul KV path that will be used to store policies and state.
 * `--telemetry-statsd-address` (string: "") - Specifies the address of a statsd server to forward metrics to.
 * `--telemetry-statsite-address` (string: "") - Specifies the address of a statsite server to forward metrics data to.
 * `--tls-cert-key-path` (string: "") - Path to the TLS certificate key for the Chemtrail server.
