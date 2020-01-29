@@ -11,6 +11,7 @@ import (
 	"github.com/jrasell/chemtrail/cmd/system"
 	"github.com/jrasell/chemtrail/pkg/build"
 	clientCfg "github.com/jrasell/chemtrail/pkg/config/client"
+	envCfg "github.com/jrasell/chemtrail/pkg/config/env"
 	"github.com/sean-/sysexits"
 	"github.com/spf13/cobra"
 )
@@ -28,6 +29,7 @@ client nodes based on demand.
 		Version: build.GetVersion(),
 	}
 
+	envCfg.RegisterCobra(rootCmd)
 	clientCfg.RegisterConfig(rootCmd)
 
 	if err := registerCommands(rootCmd); err != nil {
